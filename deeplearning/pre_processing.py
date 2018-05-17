@@ -25,12 +25,12 @@ def convert_dataframe_to_tensors(df_features, df_labels):
     return Variable(df_features), Variable(df_labels)
 
 
-def save_model_parameters(model):
+def save_model_parameters(model, filename):
     """
     :param model: torch.nn.Module
     :return: None
     """
-    torch.save(model.state_dict(), './simple-neural-net-params.pkl')
+    torch.save(model.state_dict(), './' + filename + '.pkl')
     return None
 
 
