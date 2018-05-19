@@ -62,6 +62,58 @@ Below are the ImageNet 1-crop error rates (224x224) for winning convolutional ne
 | Inception v3 |	22.55 |	6.44 |
 
 
+First structure the data as such:
+
+```
+data/
+  - train/
+      - class_1 folder/
+          - img1.png
+          - img2.png
+      - class_2 folder/
+      .....
+      - class_n folder/
+  - dev/
+      - class_1 folder/
+      - class_2 folder/
+      ......
+      - class_n folder/
+```
+
+Show transformed images
+
+```python
+data_directory = 'image_directory'
+data_transforms = dl.get_image_transform_rules(224)
+dl.show_transformed_images(data_transforms, 5)
+```
+
+Specify parameters of the model you'd like to use. Choose any model from the following list:
+
+Specify the model you'd like to use
+
+```python
+models_to_choose_from = ['resnet18', 'resnet34', 'resnet50', 'resnet101', 'resnet152', 'densenet121', 'densenet161', 'densenet169', 'densenet201', 'vgg11', 'vgg13', 'vgg16', 'vgg19']
+model_name = 'vgg19'
+```
+
+Specify the parameters of the model
+
+```python
+freeze_params = {'freeze_all_layers': True, 'freeze_first_n_layrs': 0}
+# decay learning rate every step_size epochs at a factor gamma
+optimizer_params = {'step_size': 7, 'gamma': 0.1}
+learning_rate_params = {'learning_rate': 0.001, 'momentum': 0.9}
+num_epochs = 25
+```
+
+Train the model 
+
+```python
+dl.transfer_learn(model_name, data_directory, freeze_params, optimizer_params,
+               learning_rate_params, num_epochs)
+```
+
 ### Functions depending on Jupyter Notebook
 
 
