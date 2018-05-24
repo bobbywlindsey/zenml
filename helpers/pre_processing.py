@@ -9,7 +9,7 @@ def train_test_data(dataframe, target_variable_name, train_size=.7, random_state
     :param target_variable_name: str
     :param train_size: float from 0 to 1
     :param random_state: int
-    :return: tuple of pandas.DataFrames (train, test, train_labels, test_labels)
+    :return: tuple of pandas.DataFrames with numpy.array as the final item (train, test, train_labels, test_labels, classes)
     """
     # create design matrix and target vector y
     design_matrix = np.array(dataframe.drop(target_variable_name, axis = 1))

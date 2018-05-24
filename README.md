@@ -128,6 +128,10 @@ def visualize_missing_data(df):
     percent_missing = {}
     for column_name in df.columns.values:
         num_missing = df[column_name].isnull().sum()
+        try:
+            num_missing += (df[column_name] == '').sum()
+        except:
+            continue
         percent_missing[column_name] = (num_missing / num_rows) * 100
     percent_missing_df = pd.DataFrame({'% missing': pd.Series(percent_missing)})
     display(percent_missing_df)
