@@ -42,6 +42,7 @@ def load_model_parameters(model, pickle_file_path):
     """
     return model.load_state_dict(torch.load(pickle_file_path))
 
+
 def freeze_all_layers(model):
     """
     Freezes all layers in the network
@@ -51,7 +52,7 @@ def freeze_all_layers(model):
     for params in model.parameters():
         params.requires_grad = False
     return model
-    
+
 
 def freeze_first_n_layers(model, n):
     """
@@ -103,11 +104,11 @@ def get_dataloader(data_directory, data_transforms):
     :return: dictionary, int, int
     """
     image_datasets = {x: datasets.ImageFolder(os.path.join(data_directory, x),
-                                          data_transforms[x])
-                  for x in ['train', 'dev']}
+                                              data_transforms[x])
+                      for x in ['train', 'dev']}
     dataloader = {x: torch.utils.data.DataLoader(image_datasets[x], batch_size=4,
-                                             shuffle=True, num_workers=4)
-              for x in ['train', 'dev']}
+                                                 shuffle=True, num_workers=4)
+                  for x in ['train', 'dev']}
     dataset_sizes = {x: len(image_datasets[x]) for x in ['train', 'dev']}
     num_classes = len(image_datasets['train'].classes)
     return dataloader, dataset_sizes, num_classes
@@ -141,8 +142,8 @@ def show_transformed_images(data_directory, data_transforms, num_images_to_show)
     :return: None
     """
     image_datasets = {x: datasets.ImageFolder(os.path.join(data_directory, x),
-                                          data_transforms[x])
-                  for x in ['train', 'dev']}
+                                              data_transforms[x])
+                      for x in ['train', 'dev']}
     dataloader = {x: torch.utils.data.DataLoader(image_datasets[x], batch_size=num_images_to_show,
                                                  shuffle=True, num_workers=4)
                   for x in ['train', 'dev']}

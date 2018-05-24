@@ -73,7 +73,8 @@ def deep_neural_net(train, train_labels, test, test_labels, neurons, num_epochs,
             print("Training cost after epoch {0}: {1:.2f}".format(
                 epoch, loss.item()))
     # save model parameters
-    save_model_parameters(neural_net)
+    if save:
+        save_model_parameters(neural_net, 'deep_neural_net')
     print('Training finished!')
     return neural_net
 
@@ -85,6 +86,8 @@ def test_deep_neural_net(trained_neural_net, test, test_labels):
     :param test_labels: pandas.DataFrame
     :return: None
     """
+    # run on GPU if possible
+    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     num_test_examples = test.shape[0]
     test, test_labels = convert_dataframe_to_tensors(test, test_labels)
     # create dataset to be loaded in batches
