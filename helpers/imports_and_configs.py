@@ -26,6 +26,7 @@ import requests
 import hypertools as hyp
 from collections import defaultdict
 import operator
+from sklearn.preprocessing import LabelEncoder
 
 # import packages that deal with file formats
 import os
