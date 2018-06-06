@@ -1,17 +1,34 @@
-from .imports_and_configs import *
+import sqlalchemy
+import pymssql
+import pandas as pd
+import json
+import numpy as np
+
 
 # import database config
-with open('db_config.json') as f:
-        db_config = json.load(f)
-dl_hostname_vpn = db_config['dl_hostname_vpn']
-dl_hostname_network = db_config['dl_hostname_network']
-dl_username = db_config['dl_username']
-dl_password = db_config['dl_password']
-dl_database = db_config['dl_database']
-ms_hostname = db_config['ms_hostname']
-ms_username = db_config['ms_username']
-ms_password = db_config['ms_password']
-ms_database = db_config['ms_database']
+
+try:
+    with open('db_config.json') as f:
+            db_config = json.load(f)
+    dl_hostname_vpn = db_config['dl_hostname_vpn']
+    dl_hostname_network = db_config['dl_hostname_network']
+    dl_username = db_config['dl_username']
+    dl_password = db_config['dl_password']
+    dl_database = db_config['dl_database']
+    ms_hostname = db_config['ms_hostname']
+    ms_username = db_config['ms_username']
+    ms_password = db_config['ms_password']
+    ms_database = db_config['ms_database']
+except:
+    dl_hostname_vpn = ''
+    dl_hostname_network = ''
+    dl_username = ''
+    dl_password = ''
+    dl_database = ''
+    ms_hostname = ''
+    ms_username = ''
+    ms_password = ''
+    ms_database = ''
 
 ms_engine_string = 'mssql+pymssql://' + ms_username + ':'\
                     + ms_password + '@' + ms_hostname + '/' + ms_database

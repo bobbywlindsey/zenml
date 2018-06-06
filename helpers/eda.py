@@ -1,5 +1,14 @@
-from .imports_and_configs import *
+import pandas as pd
+import matplotlib.pyplot as plt
+import operator
+import numpy as np
+import itertools
+import missingno as msno
+import IPython.display as ipd
+from .pre_processing import get_numerical_variables, get_categorical_variable_names
 
+
+# Plots
 
 def histogram(categorical_variable, plot_size=None):
     """
@@ -79,4 +88,78 @@ def plot_confusion_matrix(cm, class_labels, normalize=False, title='Confusion ma
     plt.tight_layout()
     plt.ylabel('True label')
     plt.xlabel('Predicted label')
+    return None
+
+
+# Tables, etc...
+
+def show_missing_data(df):
+    """ returns table of completeness of each row of the data from most incomplete to most complete"""
+    # diplay table for missing percentages
+    num_rows = df.shape[0]
+    percent_missing = {}
+    for column_name in df.columns.values:
+        num_missing = df[column_name].isnull().sum()
+        try:
+            num_missing += (df[column_name] == '').sum()
+        except:
+            continue
+        percent_missing[column_name] = (num_missing / num_rows) * 100
+    percent_missing_df = pd.DataFrame({'% missing': pd.Series(percent_missing)})
+    if percent_missing_df.empty:
+        print('No missing data!')
+    else:
+        display(percent_missing_df)
+    return None
+
+def get_numerical_variable_names(df):
+    """
+    Gets numerical column names from dataframe
+    :param df: pd.DataFrame
+    :return: list
+    """
+    return list(get_numerical_variables(df).columns)
+
+
+def exist_nan(pandas_series):
+    """
+    Checks if a series contains NaN values
+    :param pandas_series: pandas.DataFrame
+    :return: boolean
+    """
+    return pandas_series.isnull().values.any()
+
+
+def series_contains(pandas_series, array_of_values):
+    """
+    Checks if a series contains a list of values
+    :param pandas_series: pandas.DataFrame
+    :param array_of_values: array
+    :return: boolean
+    """
+    return not pandas_series[pandas_series.isin(array_of_values)].empty
+
+
+def get_labels_to_rows_ratio(dataframe):
+    """
+    Gets ratio of unique labels to number of rows
+    :param dataframe: pd.DataFrame
+    :return: array of tuples
+    """
+    cat_columns = get_categorical_variable_names(dataframe)
+    ratios = {col:len(dataframe[col].unique()) / dataframe[col].count() for col in cat_columns}
+    sorted_ratios = sorted(ratios.items(), key=operator.itemgetter(1), reverse=True)
+    return sorted_ratios
+
+
+def display(design_matrix):
+    """
+    Pretty print for numpy arrays and series
+    :param design_matrix: numpy.array or pandas.Series
+    :return: None
+    """
+    if isinstance(design_matrix, pd.Series) or (isinstance(design_matrix, np.ndarray) and design_matrix.ndim <= 2):
+        ipd.display(pd.DataFrame(design_matrix))
+    else:
+        ipd.display(design_matrix)
     return None
