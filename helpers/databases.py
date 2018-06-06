@@ -218,3 +218,18 @@ def create_update_table_script(schema_name, table_name, create_table_select_sour
                     + setting_columns_where_clause + insert_new_rows + drop_temp_table + function_footer
     print(script_source)
     return None
+
+
+def list_to_sql_list(python_array):
+    """
+    Pass a list and get a string back ready for SQL query usage
+    :param python_array: array, numpy.array, pandas.Series, or pandas.DataFrame
+    :return: str
+    """
+    if isinstance(python_array, list) or isinstance(python_array, pd.Series) \
+            or isinstance(python_array, np.ndarray):
+        return str(tuple(python_array))
+    elif isinstance(python_array, tuple):
+        return str(python_array)
+    else:
+        raise ValueError('Input parameter datatype not supported')

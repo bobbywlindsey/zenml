@@ -1,65 +1,10 @@
-from functools import partial, reduce
 import pandas as pd
 import numpy as np
 import math
 from collections import defaultdict
 
-# Composition of functions on a pandas dataframe
 
-def df_pipeline(df, functions):
-    """
-    Composes a list of functions on every row in a
-    pandas dataframe
-    :param df: pandas.DataFrame
-    :param functions: list
-    :return: pandas.DataFrame
-    """
-    rows = [df.iloc[index] for index in range(0, df.shape[0])]
-    return pd.DataFrame(reduce(lambda f, g: list(map(g, f)), functions, rows))
-
-
-def associate(_series, df_variable, value):
-    """
-    Associate a dataframe variable with a new value.
-    This function avoids mutating the original dataframe in order to
-    reduce side effects.
-    :param _series: pandas.Series
-    :param df_variable: str
-    :param value: str
-    :return: pandas.Series
-    """
-    from copy import deepcopy
-    series = deepcopy(_series)
-    series[df_variable] = value
-    return series
-
-
-def call(function, df_variable):
-    """
-    Apply a function to a dataframe variable (i.e. a pandas series)
-    :param function: function
-    :param df_variable: str
-    :return: function
-    """
-    def apply_function(series):
-        return associate(series, df_variable, function(series[df_variable]))
-    return apply_function
-
-
-# Composition of functions on a list
-
-def list_pipeline(some_list, functions):
-    """
-    Composes a list of functions on every element in
-    some_list
-    :param some_list: list
-    :param functions: list
-    :return: list
-    """
-    return reduce(lambda f, g: list(map(g, f)), functions, some_list)
-
-
-# Preprocessing
+# Pipeline friendly functions
 
 def add_prefix(prefix):
     """
@@ -79,33 +24,7 @@ def add_suffix(suffix):
     return lambda x: str(x) + suffix
 
 
-def get_numerical_variables(df):
-    """
-    Gets dataframe with just continuous variables
-    :param df: pandas.DataFrame
-    :return: pandas.DataFrame
-    """
-    return df._get_numeric_data()
-
-
-def get_categorical_column_names(df):
-    """
-    Gets categorical column names from dataframe
-    :param df: pd.DataFrame
-    :return: list
-    """
-    columns = df.columns
-    numerical_columns = get_numerical_variables(df).columns
-    return list(set(columns) - set(numerical_columns))
-
-
-def get_categorical_variables(df):
-    """
-    Gets dataframe with just categorical variables
-    :param df: pandas.DataFrame
-    :return: pandas.DataFrame
-    """
-    return df[get_categorical_column_names(df)]
+strip_whitespace = lambda x: x.strip() if type(x) == str else x
 
 
 def replace_string_with_nan(string_to_replace):
@@ -126,23 +45,34 @@ def replace_nan_with_string(string_to_replace_nan):
     return lambda x: string_to_replace_nan if math.isnan(x) else x
 
 
-def exist_nan(pandas_series):
+# Functions returning a dataframe
+
+def get_numerical_variables(df):
     """
-    Checks if a series contains NaN values
-    :param pandas_series: pandas.DataFrame
-    :return: boolean
+    Gets dataframe with just continuous variables
+    :param df: pandas.DataFrame
+    :return: pandas.DataFrame
     """
-    return pandas_series.isnull().values.any()
+    return df._get_numeric_data()
 
 
-def series_contains(pandas_series, array_of_values):
+def get_categorical_variable_names(df):
     """
-    Checks if a series contains a list of values
-    :param pandas_series: pandas.DataFrame
-    :param array_of_values: array
-    :return: boolean
+    Gets categorical column names from dataframe
+    :param df: pd.DataFrame
+    :return: list
     """
-    return not pandas_series[pandas_series.isin(array_of_values)].empty
+    columns = df.columns
+    return list(set(columns) - set(get_numerical_variable_names(df)))
+
+
+def get_categorical_variables(df):
+    """
+    Gets dataframe with just categorical variables
+    :param df: pandas.DataFrame
+    :return: pandas.DataFrame
+    """
+    return df[get_categorical_variable_names(df)]
 
 
 def create_dummy_variables(df, variable_name, prefix):
@@ -189,96 +119,54 @@ def reverse_dummy_variables(df_dummies, new_column_name):
     return df
 
 
-def parse_date(dataframe, date_column_name):
+def parse_date(df, date_column_name):
     """
     Separates date object into separate days and months columns
     and directly applies to dataframe
-    :param dataframe: pandas.DataFrame
+    :param df: pandas.DataFrame
     :param date_column_name: str
-    :return: None
+    :return: pandas.DataFrame
     """
-    date = pd.to_datetime(dataframe[date_column_name])
-    dataframe.drop(date_column_name, axis=1, inplace=True)
+    date = pd.to_datetime(df[date_column_name])
+    df.drop(date_column_name, axis=1, inplace=True)
     days = {0: 'Mon', 1: 'Tues', 2: 'Weds', 3: 'Thurs', 4: 'Fri', 5: 'Sat',
             6: 'Sun'}
-    dataframe['day_of_week'] = date.apply(lambda x: days[x.dayofweek])
-    dataframe['month'] = date.dt.month
-    return None
+    df['day_of_week'] = date.apply(lambda x: days[x.dayofweek])
+    df['month'] = date.dt.month
+    return df
 
 
-# TODO: put this in databases.py file
-# sql query helpers
-def list_to_sql_list(python_array):
+#  Interrogate dataframe
+
+def get_numerical_variable_names(df):
     """
-    Pass a list and get a string back ready for SQL query usage
-    :param python_array: array, numpy.array, pandas.Series, or pandas.DataFrame
-    :return: str
+    Gets numerical column names from dataframe
+    :param df: pd.DataFrame
+    :return: list
     """
-    if isinstance(python_array, list) or isinstance(python_array, pd.Series) \
-            or isinstance(python_array, np.ndarray):
-        return str(tuple(python_array))
-    elif isinstance(python_array, tuple):
-        return str(python_array)
-    else:
-        raise ValueError('Input parameter datatype not supported')
+    return list(get_numerical_variables(df).columns)
 
 
-# TODO put these functions in new file called io.py
-# file operations
-def save_to_file(dataframe, file_name):
+def exist_nan(pandas_series):
     """
-    Saves dataframe as a CSV file.
-    :param dataframe: pandas.DataFrame
-    :param file_name: str
-    :return: None
+    Checks if a series contains NaN values
+    :param pandas_series: pandas.DataFrame
+    :return: boolean
     """
-    dataframe.to_csv(file_name, sep=',', encoding='utf-8', index=False)
-    return None
+    return pandas_series.isnull().values.any()
 
 
-def write_json(json_obj, file_name):
+def series_contains(pandas_series, array_of_values):
     """
-    Writes json object to a json file
-    :param json_obj: json object
-    :param file_name: str
-    :return: None
+    Checks if a series contains a list of values
+    :param pandas_series: pandas.DataFrame
+    :param array_of_values: array
+    :return: boolean
     """
-    with open(file_name, 'w') as f:
-        json_tricks.dump(json_obj, f, indent=3)
-    return None
+    return not pandas_series[pandas_series.isin(array_of_values)].empty
 
 
-def read_json(filename):
-    """
-    Reads a json file
-    :param filename: str
-    :return: json object
-    """
-    with open(filename, 'r') as f:
-        return json_tricks.load(f)
-
-
-def save_array(np_array, file_name):
-    """
-    Saves numpy array to a compressed file
-    :param np_array: numpy.array
-    :param file_name: str
-    :return: None
-    """
-    c = bcolz.carray(np_array, rootdir=file_name, mode='w')
-    c.flush()
-    return None
-
-
-def load_array(file_name):
-    """
-    Load numpy array from compressed file
-    :param file_name: str
-    :return: numpy.array
-    """
-    return bcolz.open(file_name)[:]
-
-
+# TODO: sort these functions
 # Misc
 def onehot(numpy_array):
     """
@@ -309,7 +197,7 @@ def get_unique_label_to_num_rows_ratio(dataframe):
     :return: array of tuples
     """
     ratios = {}
-    cat_columns = get_categorical_column_names(dataframe)
+    cat_columns = get_categorical_variable_names(dataframe)
     for col in cat_columns:
         ratios[col] = len(dataframe[col].unique()) / dataframe[col].count()
     ratios = sorted(ratios.items(), key=operator.itemgetter(1), reverse=True)
@@ -368,9 +256,3 @@ def pca(dataframe_without_target, variance_explained):
 #     # return classes
 #     classes = np.sort(dataframe[target_variable_name].unique())
 #     return train_data, test_data, train_labels, test_labels, classes
-
-
-df = pd.read_csv('test.csv')
-print(exist_nan(df['components_1']))
-# preprocess = df_pipeline(df, [call(add_prefix('poop'), 'material_1')])
-# print(preprocess['material_1'].head())
