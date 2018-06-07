@@ -97,6 +97,19 @@ def create_dummy_variables(df, variable_name, prefix):
     return df
 
 
+def add_variable_to_df(variable, variable_name, df):
+    """
+    Adds a new variable to the dataframe
+    :param variable: numpy.array
+    :param variable_name: str
+    :param df: pandas.DataFrame
+    :return: pandas.DataFrame
+    """
+    variable_as_series = pd.Series(variable, index=df.index)
+    df[variable_name] = variable_as_series
+    return df
+
+
 def reverse_dummy_variables(df_dummies, new_column_name):
     """
     Merge dummy variables into one column

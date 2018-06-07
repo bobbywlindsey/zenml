@@ -2,6 +2,7 @@
 
 import warnings
 warnings.filterwarnings("ignore", category=UserWarning, module="matplotlib")
+warnings.filterwarnings("ignore", category=UserWarning, module="sklearn")
 warnings.filterwarnings("ignore", category=FutureWarning, module="pandas")
 warnings.filterwarnings("ignore", module="theano")
 
@@ -18,6 +19,7 @@ pd.options.display.show_dimensions = False
 
 import numpy as np
 np.set_printoptions(precision=4, linewidth=100)
+np.seterr(divide='ignore', invalid='ignore') # don't show divide by zero warnings
 
 # configure seaborn
 

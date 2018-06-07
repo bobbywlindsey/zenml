@@ -111,3 +111,27 @@ Train the model
 dl.transfer_learn(model_name, data_directory, freeze_params, optimizer_params,
                learning_rate_params, num_epochs)
 ```
+
+### More Traditional Models
+
+#### Random Forest
+
+```python
+# split your data
+train, test, train_labels, test_labels, classes = train_test_data(df, 'label',
+                                                                  train_size=0.8,
+                                                                  random_state=52)
+
+# some hyperparamters to try
+num_estimators = list(range(5, 10))
+min_samples_leaves = list(range(1, 5))
+max_depths = list(range(9, 10))
+
+# create the parameter grid for a random forest to grid search for best parameters
+param_grid = create_random_forest_param_grid(num_estimators, max_depths,
+                                             min_samples_leaves, num_workers=42)
+
+# autotune the model
+rf = random_forest(train, test, train_labels, test_labels, param_grid)
+```
+

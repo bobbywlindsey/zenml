@@ -22,10 +22,10 @@ def histogram(categorical_variable, plot_size=None):
     return categorical_variable.hist(bins=categorical_variable.nunique(), figsize=plot_size)
 
 
-def plot_3d(dataframe, target_variable):
+def plot_3d(df, target_variable):
     """
     3d plot of data frame columns
-    :param dataframe: pandas.DataFrame
+    :param df: pandas.DataFrame
     :param target_variable: pandas.Series
     :return: None
     """
@@ -35,11 +35,11 @@ def plot_3d(dataframe, target_variable):
     color_dict = {0: 'red', 1: 'green', 2: 'blue'}
     colors = [color_dict[each] for each in ordinal_encoding]
     threedee = plt.figure().gca(projection='3d')
-    threedee.scatter(dataframe[[0]], dataframe[[1]],
-                     dataframe[[2]], color=colors)
-    threedee.set_xlabel(dataframe.columns.values[0])
-    threedee.set_ylabel(dataframe.columns.values[1])
-    threedee.set_zlabel(dataframe.columns.values[2])
+    threedee.scatter(df[[0]], df[[1]],
+                     df[[2]], color=colors)
+    threedee.set_xlabel(df.columns.values[0])
+    threedee.set_ylabel(df.columns.values[1])
+    threedee.set_zlabel(df.columns.values[2])
     plt.show()
     return None
 
@@ -140,16 +140,29 @@ def series_contains(pandas_series, array_of_values):
     return not pandas_series[pandas_series.isin(array_of_values)].empty
 
 
-def get_labels_to_rows_ratio(dataframe):
+def get_categories_to_rows_ratio(df):
     """
-    Gets ratio of unique labels to number of rows
-    :param dataframe: pd.DataFrame
+    Gets ratio of unique categories to number of rows
+    in the categorical variable; do this for each categorical
+    variable 
+    :param df: pd.DataFrame
     :return: array of tuples
     """
-    cat_columns = get_categorical_variable_names(dataframe)
-    ratios = {col:len(dataframe[col].unique()) / dataframe[col].count() for col in cat_columns}
+    cat_columns = get_categorical_variable_names(df)
+    ratios = {col:len(df[col].unique()) / df[col].count() for col in cat_columns}
     sorted_ratios = sorted(ratios.items(), key=operator.itemgetter(1), reverse=True)
     return sorted_ratios
+
+
+def get_labels_percentage(df, target_variable_name):
+    """
+    Get the percentage of each label in the target variable
+    as a percentage
+    :param df: pd.DataFrame
+    :param target_variable_name: str
+    :return: pandas.Series
+    """
+    return df[target_variable_name].value_counts(normalize=True)
 
 
 def display(design_matrix):
