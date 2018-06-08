@@ -112,6 +112,7 @@ def show_missing_data(df):
         display(percent_missing_df)
     return None
 
+
 def get_numerical_variable_names(df):
     """
     Gets numerical column names from dataframe
@@ -119,15 +120,6 @@ def get_numerical_variable_names(df):
     :return: list
     """
     return list(get_numerical_variables(df).columns)
-
-
-def exist_nan(pandas_series):
-    """
-    Checks if a series contains NaN values
-    :param pandas_series: pandas.DataFrame
-    :return: boolean
-    """
-    return pandas_series.isnull().values.any()
 
 
 def series_contains(pandas_series, array_of_values):

@@ -26,7 +26,32 @@ def add_suffix(suffix):
     return lambda x: str(x) + suffix
 
 
-strip_whitespace = lambda x: x.strip() if type(x) == str else x
+def strip_whitespace():
+    """
+    Returns a function that strips whitespace from both
+    sides of a string
+    :return: function
+    """
+    return lambda x: x.strip() if type(x) == str else x
+
+
+def string_to_float():
+    def roboust_string_to_float(x):
+        try:
+            if type(x) == str: return float(x)
+            else: return x
+        except:
+            return x
+    return roboust_string_to_float
+
+
+def remove_string(string_to_remove):
+    """
+    Returns a function that replaces string_to_remove with ''
+    :param string_to_remove: str
+    :return: function
+    """
+    return lambda x: x.replace(string_to_remove, '') if type(x) == str else x
 
 
 def replace_string_with_nan(string_to_replace):
@@ -44,7 +69,33 @@ def replace_nan_with_string(string_to_replace_nan):
     :param string_to_replace_nan: str
     :return: function
     """
-    return lambda x: string_to_replace_nan if math.isnan(x) else x
+    def robust_replace_with_string(x):
+        if ((type(x) == np.float64 or type(x) == float)
+             and math.isnan(x)):
+            return string_to_replace_nan
+        else:
+            return x
+        
+    return robust_replace_with_string
+
+
+def like_float_to_int():
+    """
+    Takes an actual float or a string with a float representation
+    and converts it to an integer
+    :return: int
+    """
+    def robust_float_to_int(x):
+        if type(x) == str:
+            try:
+                return int(float(x))
+            except:
+                return x
+        elif type(x) ==  float:
+            return int(x)
+        else:
+            return x
+    return robust_float_to_int
 
 
 # Functions returning a dataframe
@@ -174,3 +225,25 @@ def nominal_to_ordinal(all_labels_series, train_or_test_labels_series):
     labels = all_labels_series.unique()
     label_encoder.fit(labels)
     return label_encoder.transform(train_or_test_labels_series)
+
+
+def variable_match(variable_1, variable_2):
+    """
+    Returns a binary series that compares two variables together
+    :param variable_1: pandas.Series
+    :param variable_2: pandas.Series
+    :return: pandas.Series
+    """
+    return (variable_1 == variable_2).astype(int)
+
+
+# Misc
+
+def exist_nan(pandas_series):
+    """
+    Checks if a series contains NaN values
+    :param pandas_series: pandas.DataFrame
+    :return: boolean
+    """
+    return pandas_series.isnull().values.any()
+

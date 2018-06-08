@@ -3,9 +3,9 @@ import pandas as pd
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import GridSearchCV
 from sklearn.metrics import accuracy_score
-
-
-# each of these models are autotuned with minimal user input 
+import re
+import math
+from collections import Counter
 
 
 def pca(dataframe_without_target, variance_explained):
@@ -22,6 +22,8 @@ def pca(dataframe_without_target, variance_explained):
     dataframe_pca = pd.DataFrame(pca_model.transform(dataframe_without_target))
     return dataframe_pca
 
+
+# Random forest
 
 def create_random_forest_param_grid(num_estimators, max_depths,
                                     min_samples_leaves, num_workers=1):
@@ -69,3 +71,53 @@ def random_forest(train, test, train_labels, test_labels, param_grid):
     print('Test accuracy: ' + str(test_accuracy))
     print('Best model parameters' + str(best_parameters))
     return grid_rf.best_estimator_
+
+
+# Cosine similarity
+
+def word_frequency_dict(text):
+    """
+    Get a word frequency dictionary from list
+    :param text: list
+    :return: collections.Counter
+    """
+    try:
+        word_regex = re.compile(r'\w+')
+        words = word_regex.findall(text)
+    except:
+        words = ['']
+    return Counter(words)
+
+
+def cosine_similarity_text(text_1, text_2):
+    """
+    Get the cosine similarity between two lists of words
+    :param text_1: list
+    :param text_2: list
+    :return: float
+    """
+    vec_1 = word_frequency_dict(text_1)
+    vec_2 = word_frequency_dict(text_2)
+
+    intersection = set(vec_1.keys()) & set(vec_2.keys())
+    numerator = sum([vec_1[x] * vec_2[x] for x in intersection])
+
+    sum1 = sum([vec_1[x]**2 for x in vec_1.keys()])
+    sum2 = sum([vec_2[x]**2 for x in vec_2.keys()])
+    denominator = math.sqrt(sum1) * math.sqrt(sum2)
+
+    if not denominator:
+        return 0.0
+    else:
+        return float(numerator) / denominator
+
+
+def cosine_similarity(variable_1, variable_2):
+    """
+    Get the cosine similarity between every element in two series
+    :param variable_1: pandas.Series
+    :param variable_2: pandas.Series
+    :return: pandas.Series
+    """
+    return pd.Series([cosine_similarity_text(variable_1.iloc[i], variable_2.iloc[i])
+                      for i in range(0, variable_1.shape[0])])
