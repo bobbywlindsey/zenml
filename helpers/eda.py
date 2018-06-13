@@ -6,6 +6,7 @@ import itertools
 import missingno as msno
 import IPython.display as ipd
 from .pre_processing import get_numerical_variables, get_categorical_variable_names
+from sklearn.manifold import TSNE
 
 
 # Plots
@@ -88,6 +89,23 @@ def plot_confusion_matrix(cm, class_labels, normalize=False, title='Confusion ma
     plt.tight_layout()
     plt.ylabel('True label')
     plt.xlabel('Predicted label')
+    return None
+
+
+# dimensionality reduction to visualize learned word embeddings
+def visualize_word_embeddings(model):
+    """
+    Use dimensionality reduction to plot word vectors
+    :param model: gensim.models.word2vec.Word2Vec
+    :return: None
+    """
+    tsne = TSNE(n_components=2, random_state=1)
+    word_vectors = [model.wv.word_vec(word) for word in model.wv.vocab.keys()]
+    word_vectors_tsne = tsne.fit_transform(word_vectors)
+    tsne_df = pd.DataFrame(
+        word_vectors_tsne, model.wv.vocab.keys(), columns=['x', 'y'])
+    tsne_df['text_labels'] = tsne_df.index
+    tsne_df.plot.scatter(x='x', y='y')
     return None
 
 
