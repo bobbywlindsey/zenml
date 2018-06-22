@@ -72,7 +72,7 @@ def random_forest(train, test, train_labels, test_labels, param_grid):
     best_parameters = grid_rf.best_params_
     print('Best validation accuracy: ' + str(best_val_accuracy))
     print('Test accuracy: ' + str(test_accuracy))
-    print('Best model parameters' + str(best_parameters))
+    print('Best model parameters: ' + str(best_parameters))
     return grid_rf.best_estimator_
 
 

@@ -20,6 +20,7 @@ try:
     ms_password = db_config['ms_password']
     ms_database = db_config['ms_database']
 except:
+    print('Could not import db_config.json')
     dl_hostname_vpn = ''
     dl_hostname_network = ''
     dl_username = ''
@@ -49,7 +50,7 @@ def create_engine(db_connection_string):
     """
     try:
         return sqlalchemy.create_engine(db_connection_string)
-    except:
+    except Exception as e:
         print("Engine not created - check your connection")
 
 
