@@ -64,7 +64,7 @@ def random_forest(train, test, train_labels, test_labels, param_grid):
     """
     rf = RandomForestClassifier()
     grid_rf = GridSearchCV(rf, param_grid, cv=10)
-    grid_rf.fit(train, train_labels)
+    grid_rf.fit(train, train_labels.values.ravel())
 
     best_val_accuracy = grid_rf.best_score_
     test_predictions = grid_rf.predict(test)
