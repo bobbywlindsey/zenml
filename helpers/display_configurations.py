@@ -1,11 +1,11 @@
 # suppress warnings
 
 import warnings
-warnings.filterwarnings("ignore", category=UserWarning, module="matplotlib")
-warnings.filterwarnings("ignore", category=UserWarning, module="sklearn")
-warnings.filterwarnings("ignore", category=FutureWarning, module="pandas")
-warnings.filterwarnings("ignore", category=RuntimeWarning, module="numpy")
-warnings.filterwarnings("ignore", module="theano")
+warnings.filterwarnings('ignore', category=UserWarning, module='matplotlib')
+warnings.filterwarnings('ignore', category=UserWarning, module='sklearn')
+warnings.filterwarnings('ignore', category=FutureWarning, module='pandas')
+warnings.filterwarnings('ignore', category=RuntimeWarning, module='numpy')
+warnings.filterwarnings('ignore', module='theano')
 
 # configure pandas
 
@@ -25,7 +25,7 @@ np.seterr(divide='ignore', invalid='ignore') # don't show divide by zero warning
 # configure seaborn
 
 import seaborn as sns
-sns.set(style="ticks", color_codes=True)
+sns.set(style='ticks', color_codes=True)
 
 # configure matplotlib
 

@@ -20,8 +20,8 @@ def pca(dataframe_without_target, variance_explained):
     """
     pca_model = PCA(svd_solver='full', n_components=variance_explained)
     pca_model.fit(dataframe_without_target)
-    print("num components: {0}".format(len(pca_model.components_)))
-    print("feature vector: {0}".format(pca_model.components_))
+    print('num components: {0}'.format(len(pca_model.components_)))
+    print('feature vector: {0}'.format(pca_model.components_))
     dataframe_pca = pd.DataFrame(pca_model.transform(dataframe_without_target))
     return dataframe_pca
 
@@ -39,7 +39,7 @@ def create_random_forest_param_grid(num_estimators, max_depths,
     :return: dictionary
     """
     criterion = ['gini', 'entropy']
-    max_features = ["auto", 'sqrt', 'log2', 0.2]
+    max_features = ['auto', 'sqrt', 'log2', 0.2]
     oob_scores = [False]
 
     param_grid = {'n_estimators': num_estimators,

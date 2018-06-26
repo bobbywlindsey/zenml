@@ -174,18 +174,18 @@ def reverse_dummy_variables(df_dummies, new_column_name):
     positions = defaultdict(list)
     values = defaultdict(list)
     for i, c in enumerate(df_dummies.columns):
-        if "_" in c:
-            column_name, value = c.split("_", 1)
+        if '_' in c:
+            column_name, value = c.split('_', 1)
             column_name = new_column_name
             positions[column_name].append(i)
             values[column_name].append(value)
         else:
-            positions["_"].append(i)
+            positions['_'].append(i)
     df = pd.DataFrame({k: pd.Categorical.from_codes(
                       np.argmax(df_dummies.iloc[:, positions[k]].values, axis=1),
                       values[k])
                       for k in values})
-    df[df_dummies.columns[positions["_"]]] = df_dummies.iloc[:, positions["_"]]
+    df[df_dummies.columns[positions['_']]] = df_dummies.iloc[:, positions['_']]
     return df
 
 
@@ -296,7 +296,7 @@ def stem_variable(variable):
     :param variable: pandas.Series
     :return: pandas.Series
     """
-    stemmer = SnowballStemmer("english")
+    stemmer = SnowballStemmer('english')
     return variable.map(lambda x: ' '.join([stemmer.stem(y) for y in x.decode('utf-8').split(' ')]))
 
 

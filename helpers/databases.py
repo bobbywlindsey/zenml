@@ -51,7 +51,7 @@ def create_engine(db_connection_string):
     try:
         return sqlalchemy.create_engine(db_connection_string)
     except Exception as e:
-        print("Engine not created - check your connection")
+        print('Engine not created - check your connection')
 
 
 def mssql_read(query):
@@ -85,7 +85,7 @@ def mssql_insert_dataframe(dataframe, table_name):
     """
     dataframe.to_sql(table_name, create_engine(ms_engine_string),
                     if_exists='append', index=False)
-    print("inserted rows into MS SQL's {0}".format(table_name))
+    print('inserted rows into MS SQL's {0}'.format(table_name))
     return None
 
 
@@ -100,7 +100,6 @@ def datalake_read(query, connection):
     else:
         dl_engine = create_engine(dl_engine_string_vpn)
     query = sqlalchemy.text(query)
-    """ returns query result as data frame """
     return pd.read_sql_query(query, dl_engine)
 
 
@@ -155,7 +154,7 @@ def datalake_insert_dataframe(dataframe, schema, table_name, connection):
     else:
         dl_engine = create_engine(dl_engine_string_vpn)
     dataframe.to_sql(table_name, dl_engine, schema=schema, if_exists='append', index=False)
-    print("inserted rows into Datalake's {0}.{1}".format(schema, table_name))
+    print('inserted rows into Datalake's {0}.{1}'.format(schema, table_name))
     return None
 
 

@@ -54,7 +54,7 @@ def plot_image(train, train_labels, dimensions, index):
     :return: None
     """
     plt.imshow(train.iloc[index].values.reshape(dimensions))
-    print("y = " + str(np.squeeze(train_labels.values[index])))
+    print('y = ' + str(np.squeeze(train_labels.values[index])))
     return None
 
 
@@ -83,8 +83,8 @@ def plot_confusion_matrix(cm, class_labels, normalize=False, title='Confusion ma
     print(cm)
     thresh = cm.max() / 2.
     for i, j in itertools.product(range(cm.shape[0]), range(cm.shape[1])):
-        plt.text(j, i, cm[i, j], horizontalalignment="center",
-                 color="white" if cm[i, j] > thresh else "black")
+        plt.text(j, i, cm[i, j], horizontalalignment='center',
+                 color='white' if cm[i, j] > thresh else 'black')
 
     plt.tight_layout()
     plt.ylabel('True label')
