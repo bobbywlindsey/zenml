@@ -5,44 +5,6 @@ import json
 import numpy as np
 
 
-# import database config
-
-try:
-    with open('db_config.json') as f:
-            db_config = json.load(f)
-    dl_hostname_vpn = db_config['dl_hostname_vpn']
-    dl_hostname_network = db_config['dl_hostname_network']
-    dl_username = db_config['dl_username']
-    dl_password = db_config['dl_password']
-    dl_database = db_config['dl_database']
-    ms_hostname = db_config['ms_hostname']
-    ms_username = db_config['ms_username']
-    ms_password = db_config['ms_password']
-    ms_database = db_config['ms_database']
-except:
-    print('Could not import db_config.json')
-    dl_hostname_vpn = ''
-    dl_hostname_network = ''
-    dl_username = ''
-    dl_password = ''
-    dl_database = ''
-    ms_hostname = ''
-    ms_username = ''
-    ms_password = ''
-    ms_database = ''
-
-ms_engine_string = 'mssql+pymssql://' + ms_username + ':'\
-                    + ms_password + '@' + ms_hostname + '/' + ms_database
-
-dl_engine_string_network = 'postgresql+psycopg2://' + dl_username + ':'\
-                    + dl_password + '@' + dl_hostname_network \
-                     + '/' + dl_database
-
-dl_engine_string_vpn = 'postgresql+psycopg2://' + dl_username + ':' \
-                    + dl_password + '@' + dl_hostname_vpn \
-                     + '/' + dl_database
-
-
 def create_engine(db_connection_string):
     """
     :param db_connection_string: str
@@ -85,7 +47,7 @@ def mssql_insert_dataframe(dataframe, table_name):
     """
     dataframe.to_sql(table_name, create_engine(ms_engine_string),
                     if_exists='append', index=False)
-    print('inserted rows into MS SQL's {0}'.format(table_name))
+    print("inserted rows into MS SQL's {0}".format(table_name))
     return None
 
 
@@ -154,7 +116,7 @@ def datalake_insert_dataframe(dataframe, schema, table_name, connection):
     else:
         dl_engine = create_engine(dl_engine_string_vpn)
     dataframe.to_sql(table_name, dl_engine, schema=schema, if_exists='append', index=False)
-    print('inserted rows into Datalake's {0}.{1}'.format(schema, table_name))
+    print("inserted rows into Datalake's {0}.{1}".format(schema, table_name))
     return None
 
 
@@ -250,3 +212,41 @@ def list_to_sql_list(python_array):
         return str(python_array)
     else:
         raise ValueError('Input parameter datatype not supported')
+
+
+# import database config
+
+try:
+    with open('db_config.json') as f:
+            db_config = json.load(f)
+    dl_hostname_vpn = db_config['dl_hostname_vpn']
+    dl_hostname_network = db_config['dl_hostname_network']
+    dl_username = db_config['dl_username']
+    dl_password = db_config['dl_password']
+    dl_database = db_config['dl_database']
+    ms_hostname = db_config['ms_hostname']
+    ms_username = db_config['ms_username']
+    ms_password = db_config['ms_password']
+    ms_database = db_config['ms_database']
+except:
+    print('Could not import db_config.json')
+    dl_hostname_vpn = ''
+    dl_hostname_network = ''
+    dl_username = ''
+    dl_password = ''
+    dl_database = ''
+    ms_hostname = ''
+    ms_username = ''
+    ms_password = ''
+    ms_database = ''
+
+ms_engine_string = 'mssql+pymssql://' + ms_username + ':'\
+                    + ms_password + '@' + ms_hostname + '/' + ms_database
+
+dl_engine_string_network = 'postgresql+psycopg2://' + dl_username + ':'\
+                    + dl_password + '@' + dl_hostname_network \
+                     + '/' + dl_database
+
+dl_engine_string_vpn = 'postgresql+psycopg2://' + dl_username + ':' \
+                    + dl_password + '@' + dl_hostname_vpn \
+                     + '/' + dl_database
