@@ -1,28 +1,8 @@
-from .imports_and_configs import *
-
-# import database config
-with open('db_config.json') as f:
-        db_config = json.load(f)
-dl_hostname_vpn = db_config['dl_hostname_vpn']
-dl_hostname_network = db_config['dl_hostname_network']
-dl_username = db_config['dl_username']
-dl_password = db_config['dl_password']
-dl_database = db_config['dl_database']
-ms_hostname = db_config['ms_hostname']
-ms_username = db_config['ms_username']
-ms_password = db_config['ms_password']
-ms_database = db_config['ms_database']
-
-ms_engine_string = 'mssql+pymssql://' + ms_username + ':'\
-                    + ms_password + '@' + ms_hostname + '/' + ms_database
-
-dl_engine_string_network = 'postgresql+psycopg2://' + dl_username + ':'\
-                    + dl_password + '@' + dl_hostname_network \
-                     + '/' + dl_database
-
-dl_engine_string_vpn = 'postgresql+psycopg2://' + dl_username + ':' \
-                    + dl_password + '@' + dl_hostname_vpn \
-                     + '/' + dl_database
+import sqlalchemy
+import pymssql
+import pandas as pd
+import json
+import numpy as np
 
 
 def create_engine(db_connection_string):
@@ -32,8 +12,8 @@ def create_engine(db_connection_string):
     """
     try:
         return sqlalchemy.create_engine(db_connection_string)
-    except:
-        print("Engine not created - check your connection")
+    except Exception as e:
+        print('Engine not created - check your connection')
 
 
 def mssql_read(query):
@@ -82,7 +62,6 @@ def datalake_read(query, connection):
     else:
         dl_engine = create_engine(dl_engine_string_vpn)
     query = sqlalchemy.text(query)
-    """ returns query result as data frame """
     return pd.read_sql_query(query, dl_engine)
 
 
@@ -218,3 +197,56 @@ def create_update_table_script(schema_name, table_name, create_table_select_sour
                     + setting_columns_where_clause + insert_new_rows + drop_temp_table + function_footer
     print(script_source)
     return None
+
+
+def list_to_sql_list(python_array):
+    """
+    Pass a list and get a string back ready for SQL query usage
+    :param python_array: array, numpy.array, pandas.Series, or pandas.DataFrame
+    :return: str
+    """
+    if isinstance(python_array, list) or isinstance(python_array, pd.Series) \
+            or isinstance(python_array, np.ndarray):
+        return str(tuple(python_array))
+    elif isinstance(python_array, tuple):
+        return str(python_array)
+    else:
+        raise ValueError('Input parameter datatype not supported')
+
+
+# import database config
+
+try:
+    with open('db_config.json') as f:
+            db_config = json.load(f)
+    dl_hostname_vpn = db_config['dl_hostname_vpn']
+    dl_hostname_network = db_config['dl_hostname_network']
+    dl_username = db_config['dl_username']
+    dl_password = db_config['dl_password']
+    dl_database = db_config['dl_database']
+    ms_hostname = db_config['ms_hostname']
+    ms_username = db_config['ms_username']
+    ms_password = db_config['ms_password']
+    ms_database = db_config['ms_database']
+except:
+    print('Could not import db_config.json')
+    dl_hostname_vpn = ''
+    dl_hostname_network = ''
+    dl_username = ''
+    dl_password = ''
+    dl_database = ''
+    ms_hostname = ''
+    ms_username = ''
+    ms_password = ''
+    ms_database = ''
+
+ms_engine_string = 'mssql+pymssql://' + ms_username + ':'\
+                    + ms_password + '@' + ms_hostname + '/' + ms_database
+
+dl_engine_string_network = 'postgresql+psycopg2://' + dl_username + ':'\
+                    + dl_password + '@' + dl_hostname_network \
+                     + '/' + dl_database
+
+dl_engine_string_vpn = 'postgresql+psycopg2://' + dl_username + ':' \
+                    + dl_password + '@' + dl_hostname_vpn \
+                     + '/' + dl_database

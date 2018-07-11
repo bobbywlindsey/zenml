@@ -1,11 +1,19 @@
-from .imports_and_configs import *
+from elasticsearch import Elasticsearch
+import json
+import requests
 
-with open('db_config.json') as f:
-        db_config = json.load(f)
-teamcenter = db_config['teamcenter']
-teamcenter_url = db_config['teamcenter_url']
 
-# configure TeamCenter connection
+# import database config
+
+try:
+    with open('db_config.json') as f:
+            db_config = json.load(f)
+    teamcenter = db_config['teamcenter']
+    teamcenter_url = db_config['teamcenter_url']
+except:
+    teamcenter = ''
+    teamcenter_url = ''
+
 es = Elasticsearch(teamcenter)
 
 

@@ -5,19 +5,92 @@ This repo contains Python libraries to aid in data science and machine learning 
 To import the `helper` and `deeplearning` libraries along with other useful environmental objects, use the following:
 
 ```python
-from helpers.imports_and_configs import *
-import helpers as dsh
+from helpers import *
 from deeplearning.imports_and_configs import *
 import deeplearning as dl
 ```
 
+### Preprocessing
+
+You can preprocess your pandas dataframe in a pipeline fashion:
+
+```python
+all_variable_names = df.columns.values
+call_categorical_names = get_categorical_names(df)
+
+tasks = [
+    call(replace_nan_with_string(''), all_variable_names),
+    call(strip_whitespace(), all_categorical_variable_names),
+    call(remove_string(','), 'some_variable_name'),
+    call(string_to_float(), ['other_variable_1', 'other_variable_2']),
+    call(replace_string_with_nan(''), 'variable_with_nans')
+]
+
+df = df_pipeline(df, tasks)
+```
+
+### Feature Engineering
+
+If you'd like to do a binary comparison between two variables and use the result as a new variable:
+
+```python
+variable_match = variable_match(df['variable_1'], df['variable_2'])
+df = add_variable_to_df(variable_match, 'variable_match', df)
+```
+
+Or you could calculate the cosine similarity between two varaibles:
+
+```python
+cosine_sim_variable = cosine_similarity(df['variable_1'], df['variable_2'])
+df = add_variable_to_df(cosine_sim_variable, 'variable_cosine_sim', df)
+```
+
+If you have a text field, you can use text embeddings like a continuous bag of words model:
+
+```python
+# fine tune continuous bag of words model
+ngram = 3
+min_word_count = 10
+workers = 20
+epochs = list(range(2,3))
+model_type = 'cbow'
+hidden_layer_size = 300
+initial_learning_rate = .9
+
+cbow_model = word_embedding([df['variable_1'], df['variable_2']], ngram, min_word_count, epochs,
+                                initial_learning_rate, workers, model_type=model_type)
+
+# now calculate cosine similarity between the learned vector representations of the words
+variable_cos_sim_cbow = cosine_similarity_text_embedding([df['variable_1'], df['variable_2']], cbow_model)
+df = add_variable_to_df(variable_cos_sim_cbow, 'variable_cos_sim_cbow', df)
+```
+
+Or a skip gram model:
+
+```python
+# fine tune skip gram model
+ngram = 3
+min_word_count = 10
+workers = 20
+epochs = list(range(2,3))
+model_type = 'skipgram'
+hidden_layer_size = 300
+initial_learning_rate = .9
+
+sg_model = word_embedding([df['variable_1'], df['variable_2']], ngram, min_word_count, epochs,
+                                initial_learning_rate, workers, model_type=model_type)
+
+# now calculate cosine similarity between the learned vector representations of the words
+variable_cos_sim_skipgram = cosine_similarity_text_embedding(df['variable_1'], df['variable_2'], sg_model)
+df = add_variable_to_df(variable_cos_sim_skipgram, 'variable_cos_sim_skipgram', df)
+```
 
 ### Deep Neural Net
 
 Split your training data
 
 ```python
-train, test, train_labels, test_labels, classes = dsh.train_test_data(df, 'label')
+train, test, train_labels, test_labels, classes = train_test_data(df, 'label')
 ```
 
 Train a deep neural network with two hidden layers with 25 neurons for the first layer and 12 for the second
@@ -114,27 +187,25 @@ dl.transfer_learn(model_name, data_directory, freeze_params, optimizer_params,
                learning_rate_params, num_epochs)
 ```
 
-### Functions depending on Jupyter Notebook
+### More Traditional Models
 
+#### Random Forest
 
 ```python
-%matplotlib inline
-def visualize_missing_data(df):
-    """ returns visualization of completeness of each row of the data from most incomplete to most complete"""
-    %matplotlib inline
-    sorted_df = msno.nullity_sort(df, sort='ascending')
-    # diplay table for missing percentages
-    num_rows = df.shape[0]
-    percent_missing = {}
-    for column_name in df.columns.values:
-        num_missing = df[column_name].isnull().sum()
-        try:
-            num_missing += (df[column_name] == '').sum()
-        except:
-            continue
-        percent_missing[column_name] = (num_missing / num_rows) * 100
-    percent_missing_df = pd.DataFrame({'% missing': pd.Series(percent_missing)})
-    display(percent_missing_df)
-    # return visualization
-    return msno.matrix(sorted_df)
+# split your data
+train, test, train_labels, test_labels, classes = train_test_data(df, 'label',
+                                                                  train_size=0.8,
+                                                                  random_state=52)
+
+# some hyperparamters to try
+num_estimators = list(range(5, 10))
+min_samples_leaves = list(range(1, 5))
+max_depths = list(range(9, 10))
+
+# create the parameter grid for a random forest to grid search for best parameters
+param_grid = create_random_forest_param_grid(num_estimators, max_depths,
+                                             min_samples_leaves, num_workers=42)
+
+# autotune the model
+rf = random_forest(train, test, train_labels, test_labels, param_grid)
 ```
