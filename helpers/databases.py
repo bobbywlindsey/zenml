@@ -3,6 +3,7 @@ import pymssql
 import pandas as pd
 import json
 import numpy as np
+import io
 
 
 def create_engine(db_connection_string):
@@ -103,7 +104,7 @@ def datalake_execute_function(query, connection):
     return None
 
 
-def datalake_insert_dataframe(dataframe, schema, table_name, connection):
+def datalake_insert_dataframe_append(dataframe, schema, table_name, connection):
     """
     :param dataframe: pandas.DataFrame
     :param schema: str
@@ -117,6 +118,31 @@ def datalake_insert_dataframe(dataframe, schema, table_name, connection):
         dl_engine = create_engine(dl_engine_string_vpn)
     dataframe.to_sql(table_name, dl_engine, schema=schema, if_exists='append', index=False)
     print("inserted rows into Datalake's {0}.{1}".format(schema, table_name))
+    return None
+
+
+def datalake_insert_dataframe_replace(dataframe, schema, table_name, connection):
+    """
+    This method assumes you have already create an empty table
+    with the columns of the dataframe
+
+    :param dataframe: pandas.DataFrame
+    :param schema: str
+    :param table_name: str
+    :param connection: str
+    :return: None
+    """
+    if connection == 'network':
+        dl_engine = create_engine(dl_engine_string_network)
+    else:
+        dl_engine = create_engine(dl_engine_string_vpn)
+    dl_conn = dl_engine.raw_connection()
+    cur = dl_conn.cursor()
+    output = io.StringIO()
+    dataframe.to_csv(output, sep='\t', header=False, index=False)
+    output.seek(0)
+    cur.copy_from(output, schema + '.' + table_name, null='')
+    dl_conn.commit()
     return None
 
 
