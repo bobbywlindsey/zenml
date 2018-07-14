@@ -143,6 +143,7 @@ def datalake_insert_dataframe_replace(dataframe, schema, table_name, connection)
     output.seek(0)
     cur.copy_from(output, schema + '.' + table_name, null='')
     dl_conn.commit()
+    dl_conn.close()
     return None
 
 
