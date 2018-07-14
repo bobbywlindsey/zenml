@@ -36,7 +36,6 @@ def mssql_update(query):
     cursor.execute(query)
     ms_conn_for_update.commit()
     ms_conn_for_update.close()
-    print('updated MS SQL')
     return None
 
 
@@ -48,7 +47,6 @@ def mssql_insert_dataframe(dataframe, table_name):
     """
     dataframe.to_sql(table_name, create_engine(ms_engine_string),
                     if_exists='append', index=False)
-    print("inserted rows into MS SQL's {0}".format(table_name))
     return None
 
 
@@ -80,7 +78,6 @@ def datalake_update(query, connection):
     query = sqlalchemy.text(query)
     dl_conn.execute(query)
     dl_conn.close()
-    print('updated Datalake')
     return None
 
 
@@ -100,7 +97,6 @@ def datalake_execute_function(query, connection):
     dl_conn.execute(query)
     transaction.commit()
     dl_conn.close()
-    print('executed datalake function')
     return None
 
 
@@ -117,7 +113,6 @@ def datalake_insert_dataframe_append(dataframe, schema, table_name, connection):
     else:
         dl_engine = create_engine(dl_engine_string_vpn)
     dataframe.to_sql(table_name, dl_engine, schema=schema, if_exists='append', index=False)
-    print("inserted rows into Datalake's {0}.{1}".format(schema, table_name))
     return None
 
 
