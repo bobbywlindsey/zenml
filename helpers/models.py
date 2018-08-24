@@ -85,7 +85,7 @@ def word_frequency_dict(text):
     :return: collections.Counter
     """
     try:
-        word_regex = re.compile(r'\w+')
+        word_regex = re.compile(r'\w{2,}\b')
         words = word_regex.findall(text)
     except:
         words = ['']
@@ -104,6 +104,8 @@ def cosine_similarity_text(text_1, text_2):
 
     intersection = set(vec_1.keys()) & set(vec_2.keys())
     numerator = sum([vec_1[x] * vec_2[x] for x in intersection])
+    if numerator == 0:
+        return 0.0
 
     sum1 = sum([vec_1[x]**2 for x in vec_1.keys()])
     sum2 = sum([vec_2[x]**2 for x in vec_2.keys()])
