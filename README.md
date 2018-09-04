@@ -45,6 +45,13 @@ cosine_sim_variable = cosine_similarity(df['variable_1'], df['variable_2'])
 df = add_variable_to_df(cosine_sim_variable, 'variable_cosine_sim', df)
 ```
 
+To create a ngram feature for a variable:
+
+```python
+ngram_tf_df = ngram_tf(2, .0025, .5, [df.variable])
+bigram_idf_sum_variable = ngram_idf_sum(df.variable, ngram_tf_df, 2)
+```
+
 If you have a text field, you can use text embeddings like a continuous bag of words model:
 
 ```python
