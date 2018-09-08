@@ -5,7 +5,6 @@ This repo contains Python libraries to aid in data science and machine learning 
 To import the `helper` and `deeplearning` libraries along with other useful environmental objects, use the following:
 
 ```python
-from helpers import *
 from deeplearning.imports_and_configs import *
 import deeplearning as dl
 ```
@@ -15,41 +14,43 @@ import deeplearning as dl
 You can preprocess your pandas dataframe in a pipeline fashion:
 
 ```python
-all_variable_names = df.columns.values
-call_categorical_names = get_categorical_names(df)
+from helpers import Preprocess
 
-tasks = [
-    call(replace_nan_with_string(''), all_variable_names),
-    call(strip_whitespace(), all_categorical_variable_names),
-    call(remove_string(','), 'some_variable_name'),
-    call(string_to_float(), ['other_variable_1', 'other_variable_2']),
-    call(replace_string_with_nan(''), 'variable_with_nans')
-]
+df = pd.read_csv('some_file.csv')
 
-df = df_pipeline(df, tasks)
+preprocess = Preprocess()
+
+df.name = preprocess.strip_whitespace(df.name)
+df.name = preprocess.add_suffix('_sufix', df.name)
+df.name = preprocess.replace_nan_with_string('empty', df.name)
+
 ```
 
 ### Feature Engineering
 
+```python
+feature = Feature()
+```
+
 If you'd like to do a binary comparison between two variables and use the result as a new variable:
 
 ```python
-variable_match = variable_match(df['variable_1'], df['variable_2'])
-df = add_variable_to_df(variable_match, 'variable_match', df)
+variable_match = feature.variable_match(df.variable_1, df.variable_2)
+df.variable_match = variable_match
 ```
 
-Or you could calculate the cosine similarity between two varaibles:
+Or you could calculate the cosine similarity between two text variables:
 
 ```python
-cosine_sim_variable = cosine_similarity(df['variable_1'], df['variable_2'])
-df = add_variable_to_df(cosine_sim_variable, 'variable_cosine_sim', df)
+cosine_sim_variable = feature.cosine_similarity(df.variable_1, df.variable_2)
+df.variable_cosine_sim = cosine_sim_variable
 ```
 
 To create a ngram feature for a variable:
 
 ```python
-ngram_tf_df = ngram_tf(2, .0025, .5, [df.variable])
-bigram_idf_sum_variable = ngram_idf_sum(df.variable, ngram_tf_df, 2)
+ngram_tf_df = feature.ngram_tf(2, .0025, .5, [df.variable])
+bigram_idf_sum_variable = feature.ngram_idf_sum(df.variable, ngram_tf_df, 2)
 ```
 
 If you have a text field, you can use text embeddings like a continuous bag of words model:
@@ -64,12 +65,12 @@ model_type = 'cbow'
 hidden_layer_size = 300
 initial_learning_rate = .9
 
-cbow_model = word_embedding([df['variable_1'], df['variable_2']], ngram, min_word_count, epochs,
+cbow_model = feature.word_embedding([df.variable_1, df.variable_2], ngram, min_word_count, epochs,
                                 initial_learning_rate, workers, model_type=model_type)
 
 # now calculate cosine similarity between the learned vector representations of the words
-variable_cos_sim_cbow = cosine_similarity_text_embedding([df['variable_1'], df['variable_2']], cbow_model)
-df = add_variable_to_df(variable_cos_sim_cbow, 'variable_cos_sim_cbow', df)
+variable_cos_sim_cbow = feature.cosine_similarity_text_embedding([df.variable_1, df.variable_2], cbow_model)
+df.variable_cos_sim_cbow = variable_cos_sim_cbow
 ```
 
 Or a skip gram model:
@@ -84,12 +85,12 @@ model_type = 'skipgram'
 hidden_layer_size = 300
 initial_learning_rate = .9
 
-sg_model = word_embedding([df['variable_1'], df['variable_2']], ngram, min_word_count, epochs,
+sg_model = feature.word_embedding([df.variable_1, df.variable_2], ngram, min_word_count, epochs,
                                 initial_learning_rate, workers, model_type=model_type)
 
 # now calculate cosine similarity between the learned vector representations of the words
-variable_cos_sim_skipgram = cosine_similarity_text_embedding(df['variable_1'], df['variable_2'], sg_model)
-df = add_variable_to_df(variable_cos_sim_skipgram, 'variable_cos_sim_skipgram', df)
+variable_cos_sim_skipgram = feature.cosine_similarity_text_embedding(df.variable_1, df.variable_2, sg_model)
+df.variable_cos_sim_skipgram = variable_cos_sim_skipgram
 ```
 
 ### Deep Neural Net
@@ -210,9 +211,10 @@ min_samples_leaves = list(range(1, 5))
 max_depths = list(range(9, 10))
 
 # create the parameter grid for a random forest to grid search for best parameters
-param_grid = create_random_forest_param_grid(num_estimators, max_depths,
+model = Model()
+param_grid = model.create_random_forest_param_grid(num_estimators, max_depths,
                                              min_samples_leaves, num_workers=42)
 
 # autotune the model
-rf = random_forest(train, test, train_labels, test_labels, param_grid)
+rf = model.random_forest(train, test, train_labels, test_labels, param_grid)
 ```
