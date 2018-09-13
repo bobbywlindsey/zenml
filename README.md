@@ -1,5 +1,7 @@
 # data-science
 
+To test, run `pytest` from the root directory.
+
 This repo contains Python libraries to aid in data science and machine learning tasks. Currently porting over TensorFlow deep learning modules to PyTorch.
 
 To import the `helper` and `deeplearning` libraries along with other useful environmental objects, use the following:
