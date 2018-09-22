@@ -2,7 +2,7 @@ import unittest
 import pandas as pd
 import numpy as np
 from pandas.testing import assert_frame_equal, assert_series_equal
-from helpers.preprocessing import (add_prefix, add_suffix, strip_whitespace, string_to_float,
+from zenml.preprocessing import (add_prefix, add_suffix, strip_whitespace, string_to_float,
                                    remove_string, replace_string_with_nan, replace_nan_with_string,
                                    like_float_to_int)
 

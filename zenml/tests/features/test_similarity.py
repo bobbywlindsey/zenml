@@ -2,7 +2,7 @@ import unittest
 import pandas as pd
 import numpy as np
 from pandas.testing import assert_frame_equal, assert_series_equal
-from helpers.features import variable_match, cosine_similarity, jaccard_index
+from zenml.features import variable_match, cosine_similarity, jaccard_index
 
 
 class TestSimilarity(unittest.TestCase):

@@ -1,7 +1,7 @@
 import unittest
 import pandas as pd
 from pandas.testing import assert_frame_equal
-from helpers.preprocessing import create_dummy_variables
+from zenml.preprocessing import create_dummy_variables
 
 
 class TestCategorical(unittest.TestCase):

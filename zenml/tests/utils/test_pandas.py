@@ -1,7 +1,7 @@
 import unittest
 import pandas as pd
 from pandas.testing import assert_series_equal
-from helpers.utils import array_to_series
+from zenml.utils import array_to_series
 
 
 class TestPandas(unittest.TestCase):

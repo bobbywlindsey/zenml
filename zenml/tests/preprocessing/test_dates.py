@@ -1,8 +1,8 @@
 import unittest
 import pandas as pd
 from pandas.testing import assert_frame_equal
-from helpers.preprocessing import parse_date
-from helpers.utils import array_to_series
+from zenml.preprocessing import parse_date
+from zenml.utils import array_to_series
 
 
 class TestDates(unittest.TestCase):

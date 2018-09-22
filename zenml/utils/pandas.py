@@ -1,8 +1,111 @@
+import pandas as pd
+import numpy as np
 from sklearn.model_selection import train_test_split
 import numpy as np
 import pandas as pd
-# kfold is already implemented fo sklearn models
+# kfold is already implemented for sklearn models
 from sklearn.model_selection import cross_val_score as kfold
+import IPython.display as ipd
+
+
+def display(design_matrix):
+    """
+    Pretty print for numpy arrays and series
+    :param design_matrix: numpy.array or pandas.Series
+    :return: None
+    """
+    if isinstance(design_matrix, pd.Series) or (isinstance(design_matrix, np.ndarray) and design_matrix.ndim <= 2):
+        ipd.display(pd.DataFrame(design_matrix))
+    else:
+        ipd.display(design_matrix)
+    return None
+
+
+def get_numerical_variables(df):
+    """
+    Returns dataframe with just continuous variables
+    :param df: pandas.DataFrame
+    :return: pandas.DataFrame
+    """
+    if type(df) != pd.DataFrame:
+        raise TypeError(df + ' is not of type pd.DataFrame')
+    return df._get_numeric_data()
+
+
+def get_categorical_variable_names(df):
+    """
+    Returns list of categorical column names from dataframe
+    :param df: pd.DataFrame
+    :return: list
+    """
+    if type(df) != pd.DataFrame:
+        raise TypeError(df + ' is not of type pd.DataFrame')
+    columns = df.columns
+    numerical_variable_names = list(get_numerical_variables(df).columns)
+    return list(set(columns) - set(numerical_variable_names))
+
+
+def get_categorical_variables(df):
+    """
+    Returns dataframe with just categorical variables
+    :param df: pd.DataFrame
+    :return: pd.DataFrame
+    """
+    if type(df) != pd.DataFrame:
+        raise TypeError(df + ' is not of type pd.DataFrame')
+    return df[get_categorical_variable_names(df)]
+
+
+def exist_nan(series):
+    """
+    Checks if a series contains NaN values
+    :param series: pd.Series
+    :return: boolean
+    """
+    if type(series) != pd.Series:
+        raise TypeError(series + ' is not of type pd.Series')
+    return series.isnull().values.any()
+
+
+def get_numerical_variable_names(df):
+    """
+    Gets numerical column names from dataframe
+    :param df: pd.DataFrame
+    :return: list
+    """
+    return list(get_numerical_variables(df).columns)
+
+
+def series_contains(pandas_series, array_of_values):
+    """
+    Checks if a series contains a list of values
+    :param pandas_series: pandas.DataFrame
+    :param array_of_values: array
+    :return: boolean
+    """
+    return not pandas_series[pandas_series.isin(array_of_values)].empty
+
+
+def array_to_series(array):
+    """
+    Converts numpy array to series
+    :param array: array or np.array
+    :return: pd.Series
+    """
+    if type(array) not in (list, np.ndarray):
+        raise TypeError(array + ' is not of type list or np.array')
+    return pd.Series(array, index=list(range(0, len(array))))
+
+
+def save_to_file(dataframe, file_name):
+    """
+    Saves dataframe as a CSV file.
+    :param dataframe: pandas.DataFrame
+    :param file_name: str
+    :return: None
+    """
+    dataframe.to_csv(file_name, sep=',', encoding='utf-8', index=False)
+    return None
 
 
 # Construct your own validation and test sets if modeling a time series problem or

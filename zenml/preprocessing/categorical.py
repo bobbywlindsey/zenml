@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd 
 from sklearn.preprocessing import OneHotEncoder
-from helpers.utils import exist_nan
+from zenml.utils import exist_nan
 
 
 def create_dummy_variables(series, prefix):

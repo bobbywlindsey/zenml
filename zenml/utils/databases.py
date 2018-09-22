@@ -1,3 +1,5 @@
+import pandas as pd
+import numpy as np
 import sqlalchemy
 
 
@@ -12,7 +14,7 @@ def create_engine(db_connection_string):
         raise Exception('Engine not created - check your connection')
 
 
-def list_to_sql_list(self, array):
+def list_to_sql_list(array):
     """
     Pass a list and get a string back ready for SQL query usage
     :param array: list, numpy.array, pandas.Series, or pandas.DataFrame
