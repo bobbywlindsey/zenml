@@ -5,7 +5,6 @@ import numpy as np
 import itertools
 import missingno as msno
 import IPython.display as ipd
-from .pre_processing import get_numerical_variables, get_categorical_variable_names
 from sklearn.manifold import TSNE
 
 
@@ -106,83 +105,4 @@ def visualize_word_embeddings(model):
         word_vectors_tsne, model.wv.vocab.keys(), columns=['x', 'y'])
     tsne_df['text_labels'] = tsne_df.index
     tsne_df.plot.scatter(x='x', y='y')
-    return None
-
-
-# Tables, etc...
-
-def show_missing_data(df):
-    """ returns table of completeness of each row of the data from most incomplete to most complete"""
-    # diplay table for missing percentages
-    num_rows = df.shape[0]
-    percent_missing = {}
-    for column_name in df.columns.values:
-        num_missing = df[column_name].isnull().sum()
-        try:
-            num_missing += (df[column_name] == '').sum()
-        except:
-            continue
-        percent_missing[column_name] = (num_missing / num_rows) * 100
-    percent_missing_df = pd.DataFrame({'% missing': pd.Series(percent_missing)})
-    if percent_missing_df.empty:
-        print('No missing data!')
-    else:
-        display(percent_missing_df)
-    return None
-
-
-def get_numerical_variable_names(df):
-    """
-    Gets numerical column names from dataframe
-    :param df: pd.DataFrame
-    :return: list
-    """
-    return list(get_numerical_variables(df).columns)
-
-
-def series_contains(pandas_series, array_of_values):
-    """
-    Checks if a series contains a list of values
-    :param pandas_series: pandas.DataFrame
-    :param array_of_values: array
-    :return: boolean
-    """
-    return not pandas_series[pandas_series.isin(array_of_values)].empty
-
-
-def get_categories_to_rows_ratio(df):
-    """
-    Gets ratio of unique categories to number of rows
-    in the categorical variable; do this for each categorical
-    variable 
-    :param df: pd.DataFrame
-    :return: array of tuples
-    """
-    cat_columns = get_categorical_variable_names(df)
-    ratios = {col:len(df[col].unique()) / df[col].count() for col in cat_columns}
-    sorted_ratios = sorted(ratios.items(), key=operator.itemgetter(1), reverse=True)
-    return sorted_ratios
-
-
-def get_labels_percentage(df, target_variable_name):
-    """
-    Get the percentage of each label in the target variable
-    as a percentage
-    :param df: pd.DataFrame
-    :param target_variable_name: str
-    :return: pandas.Series
-    """
-    return df[target_variable_name].value_counts(normalize=True)
-
-
-def display(design_matrix):
-    """
-    Pretty print for numpy arrays and series
-    :param design_matrix: numpy.array or pandas.Series
-    :return: None
-    """
-    if isinstance(design_matrix, pd.Series) or (isinstance(design_matrix, np.ndarray) and design_matrix.ndim <= 2):
-        ipd.display(pd.DataFrame(design_matrix))
-    else:
-        ipd.display(design_matrix)
     return None

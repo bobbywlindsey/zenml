@@ -1,20 +1,6 @@
-from elasticsearch import Elasticsearch
-import json
 import requests
-
-
-# import database config
-
-try:
-    with open('db_config.json') as f:
-            db_config = json.load(f)
-    teamcenter = db_config['teamcenter']
-    teamcenter_url = db_config['teamcenter_url']
-except:
-    teamcenter = ''
-    teamcenter_url = ''
-
-es = Elasticsearch(teamcenter)
+import json
+from elasticsearch import Elasticsearch
 
 
 def tc_global_search(query):
@@ -60,3 +46,14 @@ def get_tc_schema():
     results_string = str(results_bytes, encoding='UTF-8')
     parsed = json.loads(results_string)
     return json.dumps(parsed, indent=4, sort_keys=True)
+
+
+try:
+    with open('db_config.json') as f:
+            db_config = json.load(f)
+    teamcenter = db_config['teamcenter']
+    teamcenter_url = db_config['teamcenter_url']
+except:
+    raise Exception('Could not import db_config.json')
+
+es = Elasticsearch(teamcenter)
