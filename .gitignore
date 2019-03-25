@@ -1,5 +1,7 @@
 .DS_Store
 .ipynb_checkpoints
+*.ipynb
+*.html
 __pycache__/
 .pytest_cache/
 .idea/
