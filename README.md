@@ -1,10 +1,10 @@
-# data-science
+# ZenML
 
 To test, run `pytest` from the root directory.
 
 This repo contains Python libraries to aid in data science and machine learning tasks. Currently porting over TensorFlow deep learning modules to PyTorch.
 
-To import the `helper` and `deeplearning` libraries along with other useful environmental objects, use the following:
+To import the `deeplearning` library along with other useful environmental objects, use the following:
 
 ```python
 from deeplearning.imports_and_configs import *
@@ -16,48 +16,107 @@ import deeplearning as dl
 You can preprocess your pandas dataframe in a pipeline fashion:
 
 ```python
-from helpers import Preprocess
+from zenml.preprocessing import strip_whitespace, add_suffix, replace_nan_with_string 
 
 df = pd.read_csv('some_file.csv')
 
-preprocess = Preprocess()
+df.name = strip_whitespace(df.name)
+df.name = add_suffix('_sufix', df.name)
+df.name = replace_nan_with_string('empty', df.name)
 
-df.name = preprocess.strip_whitespace(df.name)
-df.name = preprocess.add_suffix('_sufix', df.name)
-df.name = preprocess.replace_nan_with_string('empty', df.name)
+```
 
+### Hypothesis Testing
+
+Only two hypothesis tests are available at the moment: t-test (Student's, Welch's, and paired) and fisher's test.
+
+As an example t-test, say you're looking at the Boston Housing dataset.
+
+```python
+import pandas as pd
+from sklearn.datasets import load_boston
+
+boston = load_boston()
+boston_df = pd.DataFrame(boston.data)
+boston_df.columns = boston.feature_names
+boston_df['PRICE'] = boston.target
+boston_df.head()
+```
+
+Your hypothesis is that house prices in areas with lower student-teacher ratios are greater than house prices in an area with a higher student-teacher ratio.
+
+```python
+from zenml.hypothesis_tests import t_test
+
+low_st_ratio = boston_df[boston_df.PTRATIO < 18].PRICE
+low_st_ratio.reset_index(drop=True, inplace=True)
+high_st_ratio = boston_df[boston_df.PTRATIO > 18].PRICE
+
+alt_hypothesis = '>'
+no_intervention_data = high_st_ratio
+intervention_data = low_st_ratio
+
+test_results = t_test(alt_hypothesis, intervention_data, no_intervention_data)
+print(test_results)
+```
+
+```
+{'Sample Size 1': 185, 'Sample Size 2': 316, 'Alt. Hypothesis': '>', 'Test Name': 'Welchs t-test', 'p-value': 5.19826947410151e-23, 'Test Statistic': 10.642892435040595, 'Effect Size': 1.0606056235342178, 'Power': 0.8641386288870567}
+```
+
+Or say you want to know if there's a significant difference in the clicks between site A and site B.
+
+```python
+from zenml.hypothesis_tests import fisher
+
+site_a = pd.Series([0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, 0])
+site_b = pd.Series([0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1])
+no_intervention_data = site_a
+intervention_data = site_b
+alt_hypothesis = '!='
+
+test_results = fisher(alt_hypothesis, intervention_data, no_intervention_data)
+print(test_results)
+```
+
+```
+{'Sample Size 1': 15, 'Sample Size 2': 17, 'Alt. Hypothesis': '!=', 'Test Name': 'Fishers Exact Test', 'p-value': 0.03195238826540317, 'Effect Size': 0.7951807228915662, 'Power': None}
 ```
 
 ### Feature Engineering
 
-```python
-feature = Feature()
-```
-
 If you'd like to do a binary comparison between two variables and use the result as a new variable:
 
 ```python
-variable_match = feature.variable_match(df.variable_1, df.variable_2)
+from zenml.features import variable_match
+
+variable_match = variable_match(df.variable_1, df.variable_2)
 df.variable_match = variable_match
 ```
 
 Or you could calculate the cosine similarity between two text variables:
 
 ```python
-cosine_sim_variable = feature.cosine_similarity(df.variable_1, df.variable_2)
+from zenml.features import cosine_similarity
+
+cosine_sim_variable = cosine_similarity(df.variable_1, df.variable_2)
 df.variable_cosine_sim = cosine_sim_variable
 ```
 
 To create a ngram feature for a variable:
 
 ```python
-ngram_tf_df = feature.ngram_tf(2, .0025, .5, [df.variable])
-bigram_idf_sum_variable = feature.ngram_idf_sum(df.variable, ngram_tf_df, 2)
+from zenml.features import ngram_tf, ngram_idf_sum
+
+ngram_tf_df = ngram_tf(2, .0025, .5, [df.variable])
+bigram_idf_sum_variable = ngram_idf_sum(df.variable, ngram_tf_df, 2)
 ```
 
 If you have a text field, you can use text embeddings like a continuous bag of words model:
 
 ```python
+from zenml.features import word_embedding, cosine_similarity_text_embedding
+
 # fine tune continuous bag of words model
 ngram = 3
 min_word_count = 10
@@ -67,17 +126,19 @@ model_type = 'cbow'
 hidden_layer_size = 300
 initial_learning_rate = .9
 
-cbow_model = feature.word_embedding([df.variable_1, df.variable_2], ngram, min_word_count, epochs,
-                                initial_learning_rate, workers, model_type=model_type)
+cbow_model = word_embedding([df.variable_1, df.variable_2], ngram, min_word_count, epochs,
+                             initial_learning_rate, workers, model_type=model_type)
 
 # now calculate cosine similarity between the learned vector representations of the words
-variable_cos_sim_cbow = feature.cosine_similarity_text_embedding([df.variable_1, df.variable_2], cbow_model)
+variable_cos_sim_cbow = cosine_similarity_text_embedding([df.variable_1, df.variable_2], cbow_model)
 df.variable_cos_sim_cbow = variable_cos_sim_cbow
 ```
 
 Or a skip gram model:
 
 ```python
+from zenml.features import word_embedding, cosine_similarity_text_embedding
+
 # fine tune skip gram model
 ngram = 3
 min_word_count = 10
@@ -87,11 +148,11 @@ model_type = 'skipgram'
 hidden_layer_size = 300
 initial_learning_rate = .9
 
-sg_model = feature.word_embedding([df.variable_1, df.variable_2], ngram, min_word_count, epochs,
-                                initial_learning_rate, workers, model_type=model_type)
+sg_model = word_embedding([df.variable_1, df.variable_2], ngram, min_word_count, epochs,
+                           initial_learning_rate, workers, model_type=model_type)
 
 # now calculate cosine similarity between the learned vector representations of the words
-variable_cos_sim_skipgram = feature.cosine_similarity_text_embedding(df.variable_1, df.variable_2, sg_model)
+variable_cos_sim_skipgram = cosine_similarity_text_embedding(df.variable_1, df.variable_2, sg_model)
 df.variable_cos_sim_skipgram = variable_cos_sim_skipgram
 ```
 
