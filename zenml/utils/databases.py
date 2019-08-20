@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 import sqlalchemy
+import json
 
 
 def create_engine(db_connection_string):
@@ -12,6 +13,19 @@ def create_engine(db_connection_string):
         return sqlalchemy.create_engine(db_connection_string)
     except Exception:
         raise Exception('Engine not created - check your connection')
+
+
+def get_connection_params():
+    """
+    Get connection parameters for Greenplum and Hive
+    :return: dict 
+    """
+    try:
+        with open('db_config.json') as f:
+            connection_params = json.load(f)
+        return connection_params
+    except Exception:
+        raise Exception('Could not import db_config.json')
 
 
 def list_to_sql_list(array):
