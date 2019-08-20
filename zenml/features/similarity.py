@@ -3,6 +3,7 @@ import numpy as np
 import re
 from collections import Counter
 from .embeddings import _cosine_similarity_numeric, _text_embedding
+np.seterr(divide='ignore', invalid='ignore')
 
 
 def cosine_similarity(series_1, series_2, regex_exp):
