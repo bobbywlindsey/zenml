@@ -1,6 +1,8 @@
 # ZenML
 
-This repo contains Python libraries to aid in data science and machine learning tasks. Currently porting over TensorFlow deep learning modules to PyTorch.
+This repo contains Python libraries to aid in data science and machine learning tasks.
+
+mypy zenml/ --ignore-missing-imports
 
 ### Install
 
@@ -10,14 +12,8 @@ This repo contains Python libraries to aid in data science and machine learning 
 
 To test, run `pytest` from the root directory.
 
-### Usage
+To check types, run `mypy zenml/ --ignore-missing-imports`.
 
-To import the `deeplearning` library along with other useful environmental objects, use the following:
-
-```python
-from deeplearning.imports_and_configs import *
-import deeplearning as dl
-```
 
 ### Preprocessing
 
