@@ -2,18 +2,15 @@
 
 This repo contains Python libraries to aid in data science and machine learning tasks.
 
-mypy zenml/ --ignore-missing-imports
-
 ### Install
 
 `pip install git+https://github.com/bobbywlindsey/zenml`
 
 ### Test
 
-To test, run `pytest` from the root directory.
+To test, run `pytest zenml/` from the root directory.
 
 To check types, run `mypy zenml/ --ignore-missing-imports`.
-
 
 ### Preprocessing
 
