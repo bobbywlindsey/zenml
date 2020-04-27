@@ -36,7 +36,7 @@ def apply_map(df, dictionary):
     """
 
     # Squeeze to reshape (x, 1) to (x,)
-    series_with_replaced_values = np.squeeze(df).apply(lambda string: dictionary[string] if string in dictionary else string)
+    series_with_replaced_values = np.squeeze(df).map(lambda string: dictionary[string] if string in dictionary else string)
     # Return dataframe with shape (x, 1)
     return series_with_replaced_values.to_frame()
 
