@@ -8,7 +8,7 @@ This repo contains Python libraries to aid in data science and machine learning 
 
 ### Test
 
-To test, run `pytest zenml/` from the root directory.
+To test, run `python -m pytest zenml/` from the root directory.
 
 To check types, run `mypy zenml/ --ignore-missing-imports`.
 

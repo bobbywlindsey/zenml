@@ -1,10 +1,13 @@
+from zenml.preprocessing import *
+from zenml.utils import pipelinize
+
 from sklearn.compose import ColumnTransformer
-from sklearn.preprocessing import FunctionTransformer
-import inspect
+from sklearn.pipeline import Pipeline
 import numpy as np
 
+from sklearn.preprocessing import OneHotEncoder
+
 # maybe remove
-from sklearn.pipeline import Pipeline
 import pandas as pd
 
 
@@ -16,51 +19,35 @@ boston_pd.columns = boston.feature_names
 boston_pd['test text'] = np.repeat('value', boston_pd.shape[0])
 boston_pd['test text 2'] = np.repeat('other value', boston_pd.shape[0])
 boston_pd['test text 3'] = np.repeat('bobby value', boston_pd.shape[0])
-
-
-def pipelinize(function, *args):
-    keys = inspect.getfullargspec(function).args[1:]
-    values = list(args)
-    return FunctionTransformer(function, validate=False, kw_args=dict(zip(keys, values)))
-
-
-# Series tranformations; works across rows and columns
-def add_prefix(one_column_df, prefix):
-    return prefix + one_column_df
-
-
-def add_suffix(one_column_df, suffix):
-    return one_column_df + suffix
+boston_pd['test text 4'] = np.repeat(' whitespace value ', boston_pd.shape[0])
+boston_pd['test text 5'] = np.repeat(np.nan, boston_pd.shape[0])
+boston_pd['test text 6'] = np.array(['class1', 'class2']*253)
 
 
 def get_continuous_features(df):
     return list(df.select_dtypes(include=[np.number]).columns.values)
 
 
-def apply_map(one_column_df, dictionary):
-    """
-    More robust version of pd.Series.map() since values not in dictionary
-    aren't converted to NaN values but are preserved.
-
-    :param one_column_df: pandas.DataFrame of size (x, 1)
-    :param dictionary: dict
-    :return: pandas.DataFrame of size (x, 1)
-    """
-    # Squeeze to reshape (x, 1) to (x,)
-    series_with_replaced_values = np.squeeze(one_column_df).apply(lambda string: dictionary[string] if string in dictionary else string)
-    # Return dataframe with shape (x, 1)
-    return series_with_replaced_values.to_frame()
-
-
-my_mapping = {'bobby value': 'alicia value'}
-
-preprocess = ColumnTransformer([
-    ('prefix', pipelinize(add_prefix, 'yoyo'), ['test text', 'test text 2']),
-    # ('suffix', pipelinize(add_suffix, 'testssss'), ['test text 2']),
-    ('mapping', pipelinize(apply_map, my_mapping), ['test text 3'])
+# Output of one function is input to the next
+test_text_4_pipeline = Pipeline([
+    ('replace', pipelinize(replace_string, 'value', 'titties')),
+    ('removal', pipelinize(remove_string, 'whitespace')),
 ])
 
 
+# Each transformation results in a new column
+preprocess = ColumnTransformer([
+    ('testtest4', test_text_4_pipeline, ['test text 4']),
+    ('onehot', OneHotEncoder(), ['test text 6'])
+    # ('prefix', pipelinize(add_prefix, 'yoyo'), ['test text', 'test text 2']),
+    # # ('suffix', pipelinize(add_suffix, 'testssss'), ['test text 2']),
+    # ('mapping', pipelinize(apply_map, my_mapping), ['test text 3']),
+    # ('replacenan', pipelinize(replace_nan_with_string, 'NA'), ['test text 5']),
+    # ('likefloat', pipelinize(like_float_to_int), ['test text 4']),
+])
+
 
 print(boston_pd.head())
+print(boston_pd.shape)
 print(preprocess.fit_transform(boston_pd))
+

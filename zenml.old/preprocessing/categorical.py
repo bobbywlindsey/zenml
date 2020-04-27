@@ -1,17 +1,18 @@
 import numpy as np
-import pandas as pd 
-from sklearn.preprocessing import OneHotEncoder
+import pandas as pd
 from zenml.utils import exist_nan
 
 
 def create_dummy_variables(series, prefix):
     """
     Returns dataframe with indicator variables for a given categorical series
+
     :param df: pd.DataFrame
     :param variable_name: str
     :param prefix: str
     :return: pd.DataFrame
     """
+
     # check types
     if type(series) != pd.Series:
         raise TypeError(series + ' is not of type pd.Series')

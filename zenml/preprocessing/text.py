@@ -1,103 +1,100 @@
-import pandas as pd
 import numpy as np
-import math
-from nltk.stem.snowball import SnowballStemmer
 
 
-def add_prefix(prefix, series):
+def add_prefix(df, prefix):
     """
-    Returns a pandas series that adds a prefix to a string
+    Add prefix to all columns in a dataframe
+
+    :param df: pandas.DataFrame
     :param prefix: str
-    :return: pd.Series
+    :return: pandas.DataFrame
     """
-    if type(prefix) != str:
-        raise TypeError(prefix + ' is not of type str')
-    if type(series) != pd.Series:
-        raise TypeError(series + ' is not of type pd.Series')
-    return series.apply(lambda x: prefix + str(x))
+
+    return prefix + df
 
 
-def add_suffix(suffix, series):
+def add_suffix(df, suffix):
     """
-    Returns a pandas series that adds a suffix to a string
+    Add suffix to all columns in a dataframe
+
+    :param df: pandas.DataFrame
     :param suffix: str
-    :return: pd.Series
+    :return: pandas.DataFrame
     """
-    if type(suffix) != str:
-        raise TypeError(suffix + ' is not of type str')
-    if type(series) != pd.Series:
-        raise TypeError(series + ' is not of type pd.Series')
-    return series.apply(lambda x: str(x) + suffix)
+
+    return df + suffix
 
 
-def strip_whitespace(series):
+def apply_map(df, dictionary):
     """
-    Returns a pandas series that strips whitespace from both
-    sides of a string
-    :return: pd.Series
+    More robust version of pd.Series.map() since values not in dictionary
+    aren't converted to NaN values but are preserved.
+
+    :param df: pandas.DataFrame of size (x, 1)
+    :param dictionary: dict
+    :return: pandas.DataFrame of size (x, 1)
     """
-    if type(series) != pd.Series:
-        raise TypeError(series + ' is not of type pd.Series')
-    return series.apply(lambda x: x.strip() if type(x) == str else x)
+
+    # Squeeze to reshape (x, 1) to (x,)
+    series_with_replaced_values = np.squeeze(df).apply(lambda string: dictionary[string] if string in dictionary else string)
+    # Return dataframe with shape (x, 1)
+    return series_with_replaced_values.to_frame()
 
 
-def string_to_float(series):
+def strip_whitespace(df):
     """
-    Returns a string as a float. If no string is provided,
-    the original element is returned
+    Strip all whitespace from all columns in dataframe
+
+    :return: pd.DataFrame
     """
-    if type(series) != pd.Series:
-        raise TypeError(series + ' is not of type pd.Series')
-    return series.apply(lambda x: float(x) if type(x) == str else x)
+
+    return df.apply(lambda x: x.str.strip())
 
 
-def remove_string(string_to_remove, series):
+def replace_string(df, str_or_regex_to_replace, new_string):
     """
-    Returns a pandas series that replaces string_to_remove with ''
+    Remove a string from all columns in a dataframe
+
+    :param df: pandas.DataFrame
     :param string_to_remove: str
+    :return: pd.DataFrame
+    """
+
+    return df.apply(lambda x: x.str.replace(str_or_regex_to_replace, new_string))
+
+
+def remove_string(df, str_or_regex_to_remove):
+    """
+    Remove a string from all columns in a dataframe
+
+    :param df: pandas.Dataframe
+    :param string_to_remove: str
+    :return: pd.Dataframe
+    """
+
+    return replace_string(df, str_or_regex_to_remove, '')
+
+
+def replace_nan_with_string(df, string):
+    """
+    Replace all NaN values in the dataframe with string
+
+    :param df: pandas.DataFrame
+    :return: pd.DataFrame
+    """
+
+    return df.fillna(string)
+
+
+def like_float_to_int(df):
+    """
+    Takes dataframe of actual floats or a strings with a float representation
+    and converts it to a dataframe of integers
+
+    :param df: pd.DataFrame
     :return: pd.Series
     """
-    if type(string_to_remove) != str:
-        raise TypeError(string_to_remove + ' is not of type str')
-    if type(series) != pd.Series:
-        raise TypeError(series + ' is not of type pd.Series')
-    return series.apply(lambda x: ' '.join(x.replace(string_to_remove, '').split()) if type(x) == str else x)
 
-
-def replace_string_with_nan(string_to_replace, series):
-    """
-    Returns a pandas series that replaces a string with np.nan
-    :param string_to_replace: str
-    :return: pd.Series
-    """
-    if type(string_to_replace) != str:
-        raise TypeError(string_to_replace + ' is not of type str')
-    if type(series) != pd.Series:
-        raise TypeError(series + ' is not of type pd.Series')
-    return series.apply(lambda x: np.nan if str(x) == string_to_replace else x)
-
-
-def replace_nan_with_string(string_to_replace_nan, series):
-    """
-    Returns a pandas series that replaces a np.nan with string
-    :param string_to_replace_nan: str
-    :return: pd.Series
-    """
-    if type(string_to_replace_nan) != str:
-        raise TypeError(string_to_replace_nan + ' is not of type str')
-    if type(series) != pd.Series:
-        raise TypeError(series + ' is not of type pd.Series')
-    return series.apply(lambda x: string_to_replace_nan if ((type(x) == np.float64 or type(x) == float) and math.isnan(x)) else x)
-
-
-def like_float_to_int(series):
-    """
-    Takes series of actual floats or a strings with a float representation
-    and converts it to a series of integers
-    :return: pd.Series
-    """
-    if type(series) != pd.Series:
-        raise TypeError(series + ' is not of type pd.Series')
     def robust_float_to_int(x):
         if type(x) == str:
             try:
@@ -108,13 +105,5 @@ def like_float_to_int(series):
             return int(x)
         else:
             return x
-    return series.apply(lambda x: robust_float_to_int(x))
+    return df.apply(lambda x: x.apply(robust_float_to_int))
 
-def stem_variable(series):
-    """
-    Stem the text
-    :param series: pd.Series
-    :return: pd.Series
-    """
-    stemmer = SnowballStemmer('english')
-    return series.map(lambda x: ' '.join([stemmer.stem(y) for y in x.decode('utf-8').split(' ')]))
