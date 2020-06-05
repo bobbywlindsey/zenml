@@ -1,10 +1,15 @@
+"""
+Do stuff to categorical features
+"""
+
 import numpy as np
-from .text import apply_map
 
 
 def count_encode(df):
     """
-    Count encode a categorical variable
+    Count encode a categorical variable which replaces the categorical
+    value with the number of times it occurs in the
+    data set
 
     :param df: pandas.DataFrame of size (x, 1)
     :return: pandas.DataFrame of size (x, 1)

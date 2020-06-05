@@ -8,7 +8,7 @@ This repo contains Python libraries to aid in data science and machine learning 
 
 ### Run Unit Tests
 
-To test, run `pytest zenml/` from the root directory.
+To test, run `pytest zenml/` or `python -m pytest zenml/` from the root directory.
 
 ### Preprocessing
 
@@ -27,6 +27,7 @@ But you can also use these preprocessing functions in scikit-learn's pipeline.
 
 ```python
 # Pipeline for a particular feature
+my_mapping = {' d1rty_valu3': 'value', 'enginEer': 'engineer'}
 feature_pipeline = Pipeline([
     ('replace',    pipelinize(replace_string, 'value', 'new value')),
     ('removal',    pipelinize(remove_string, 'string to remove')),
@@ -39,18 +40,26 @@ feature_pipeline = Pipeline([
 # A more general pipeline for categorical variables
 ordinal_mapping = {'small': 1, 'medium': 2, 'large': 3}
 categorical_pipeline = Pipeline([
-    ('replace nan with string', SimpleImputer(strategy='constant', fill_value='missing')),
+    ('replace nan with mean', SimpleImputer(strategy='mean', add_indicator=True)),
     # Choose thy encoding
     ('encode nominal', OneHotEncoder(handle_unknown='ignore')),
     ('encode ordinal', pipelinize(apply_map, ordinal_mapping)),
     ('count encoder', pipelinize(count_encode))
 ])
 
+# A more general pipeline for numeric variables
+numeric_pipeline = Pipeline([
+    ('standardize variable', StandardScalar())
+])
+
 # Each transformation results in a new column
 preprocess = ColumnTransformer([
     ('my feature pipeline', feature_pipeline, ['my feature']),
-    ('categorical pipeline', categorical_pipeline, ['my nominal feature'])
+    ('categorical pipeline', categorical_pipeline, ['cat feature 1', 'cat feature 2'])
 ])
+
+# TODO: Convert pipeline result to pandas dataframe
+# TODO: handle todo.txt todos
 ```
 ### Hypothesis Testing
 
