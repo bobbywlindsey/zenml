@@ -19,6 +19,7 @@ from zenml.preprocessing import *
 
 df['my feature'] = replace_string(df['my feature'], 'value', 'new value')
 df[['first feature', 'second feature']] = add_suffix(df[['first feature', 'second feature']], '_mysuffix')
+df['cat feature'] = count_encode(df['cat feature'])
 ```
 
 ### Preprocessing with Pipelines
@@ -26,6 +27,12 @@ df[['first feature', 'second feature']] = add_suffix(df[['first feature', 'secon
 But you can also use these preprocessing functions in scikit-learn's pipeline.
 
 ```python
+from zenml.utils           import pipelinize
+from sklearn.pipeline      import Pipeline
+from sklearn.impute        import SimpleImputer
+from sklearn.compose       import ColumnTransformer
+from sklearn.preprocessing import RobustScaler
+
 # Pipeline for a particular feature
 my_mapping = {' d1rty_valu3': 'value', 'enginEer': 'engineer'}
 feature_pipeline = Pipeline([
@@ -40,7 +47,7 @@ feature_pipeline = Pipeline([
 # A more general pipeline for categorical variables
 ordinal_mapping = {'small': 1, 'medium': 2, 'large': 3}
 categorical_pipeline = Pipeline([
-    ('replace nan with mean', SimpleImputer(strategy='mean', add_indicator=True)),
+    ('replace nan with mean', SimpleImputer(strategy='constant', fill_value='missing')),
     # Choose thy encoding
     ('encode nominal', OneHotEncoder(handle_unknown='ignore')),
     ('encode ordinal', pipelinize(apply_map, ordinal_mapping)),
@@ -49,18 +56,19 @@ categorical_pipeline = Pipeline([
 
 # A more general pipeline for numeric variables
 numeric_pipeline = Pipeline([
-    ('standardize variable', StandardScalar())
+    ('standardize variable', RobustScalar())
 ])
 
-# Each transformation results in a new column
 preprocess = ColumnTransformer([
     ('my feature pipeline', feature_pipeline, ['my feature']),
     ('categorical pipeline', categorical_pipeline, ['cat feature 1', 'cat feature 2'])
 ])
 
-# TODO: Convert pipeline result to pandas dataframe
-# TODO: handle todo.txt todos
+# Preprocess your data and with the option of 
+# returning a data frame for additional inspection
+print(fit_column_transformer(preprocess, df, to_df=True))
 ```
+
 ### Hypothesis Testing
 
 Only two hypothesis tests are available at the moment: t-test (Student's, Welch's, and paired) and fisher's test.
